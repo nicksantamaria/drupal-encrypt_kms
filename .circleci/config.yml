@@ -87,6 +87,7 @@ jobs:
             chown -R www-data:www-data /data
       - checkout:
           path: /data/app/modules/encrypt_kms
+      - run: apt-get install -y jq
       - run:
           name: Fetch encrypt_kms dependencies
           command: cat /data/app/modules/encrypt_kms/composer.json | jq '.require | keys[] as $k | "\($k) \(.[$k])"' | xargs composer require
