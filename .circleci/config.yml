@@ -90,7 +90,10 @@ jobs:
       - run: apt-get install -y jq
       - run:
           name: Fetch encrypt_kms dependencies
-          command: cat /data/app/modules/encrypt_kms/composer.json | jq '.require | keys[] as $k | "\($k) \(.[$k])"' | xargs composer require
+          working_directory: /data/app
+          command: |
+            cat composer.json | jq '.'
+            cat modules/encrypt_kms/composer.json | jq '.require | keys[] as $k | "\($k)=\(.[$k])@dev"' | xargs composer require
       - save_cache:
           key: dependency-cache-{{ checksum "app/composer.lock" }}
           paths:
