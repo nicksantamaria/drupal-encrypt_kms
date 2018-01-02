@@ -72,9 +72,11 @@ jobs:
           working_directory: /data/app
           command: |
             mkdir -p \
-              sites/default/files/{tmp,private} \
+              sites/default/files/tmp \
+              sites/default/private \
               sites/simpletest/browser_output \
-              modules/encrypt_kms ./build/phpunit
+              modules/encrypt_kms \
+              build/phpunit
             chmod -R 777 sites/default/files sites/simpletest
             chmod -R 2775 sites/default/private
             touch sites/simpletest/browser_output/test-output.html
