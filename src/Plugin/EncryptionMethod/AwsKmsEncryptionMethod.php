@@ -8,6 +8,7 @@ use Masterminds\HTML5\Exception;
 use Aws\Kms\KmsClient;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class AwsKmsEncryptionMethod.
@@ -36,13 +37,21 @@ class AwsKmsEncryptionMethod extends EncryptionMethodBase implements EncryptionM
   protected $kmsClient;
 
   /**
+   * The logger.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     /** @var self $instance */
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     return $instance
-      ->setKmsClient($container->get('encrypt_kms.kms_client'));
+      ->setKmsClient($container->get('encrypt_kms.kms_client'))
+      ->setLogger($container->get('logger.channel.encrypt_kms'));
   }
 
   /**
@@ -60,13 +69,29 @@ class AwsKmsEncryptionMethod extends EncryptionMethodBase implements EncryptionM
   }
 
   /**
+   * Sets logger property.
+   *
+   * @param \Psr\Log\LoggerInterface $logger
+   *   The logger.
+   *
+   * @return self
+   *   Current object.
+   */
+  public function setLogger(LoggerInterface $logger) {
+    $this->logger = $logger;
+    return $this;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function checkDependencies($text = NULL, $key = NULL) {
     $errors = [];
 
     if (!class_exists('\Aws\Kms\KmsClient')) {
-      $errors[] = $this->t('AWS KMS PHP library is not correctly installed.');
+      $error = $this->t('AWS KMS PHP library is not correctly installed.');
+      $errors[] = $error;
+      $this->logger->error($error);
     }
 
     return $errors;
@@ -84,8 +109,8 @@ class AwsKmsEncryptionMethod extends EncryptionMethodBase implements EncryptionM
 
       return $result['CiphertextBlob'];
     }
-    catch (Exception $e) {
-      watchdog_exception('encrypt_kms', $e);
+    catch (\Exception $e) {
+      $this->logException($e, $text);
       return FALSE;
     }
   }
@@ -102,10 +127,24 @@ class AwsKmsEncryptionMethod extends EncryptionMethodBase implements EncryptionM
 
       return $result['Plaintext'];
     }
-    catch (Exception $e) {
-      watchdog_exception('encrypt_kms', $e);
+    catch (\Exception $e) {
+      $this->logException($e, $text);
       return FALSE;
     }
+  }
+
+  /**
+   * Helper method for logging exceptions.
+   *
+   * @param \Exception $e
+   *   The exception.
+   * @param string $plaintext
+   *   Plaintext data to redact from logs.
+   */
+  public function logException(\Exception $e, $plaintext) {
+    $message = $e->getMessage();
+    $context['sensitive_data'] = $plaintext;
+    $this->logger->error($message, $context);
   }
 
 }

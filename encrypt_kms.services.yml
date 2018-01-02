@@ -12,3 +12,7 @@ services:
   encrypt_kms.kms_client_factory:
     class: Drupal\encrypt_kms\KmsClientFactory
     public: false
+
+  logger.channel.encrypt_kms:
+    class: Drupal\encrypt_kms\LoggerChannelEncryptKms
+    arguments: ['encrypt_kms']
