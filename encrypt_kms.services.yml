@@ -14,5 +14,5 @@ services:
     public: false
 
   logger.channel.encrypt_kms:
-    class: Drupal\encrypt_kms\LoggerChannelEncryptKms
+    parent: logger.channel_base
     arguments: ['encrypt_kms']

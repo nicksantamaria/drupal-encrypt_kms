@@ -88,8 +88,7 @@ class AwsKmsEncryptionMethod extends EncryptionMethodBase implements EncryptionM
     $errors = [];
 
     if (!class_exists('\Aws\Kms\KmsClient')) {
-      $error = $this->t('AWS KMS PHP library is not correctly installed.');
-      $errors[] = $error;
+      $errors[] = $error = $this->t('AWS KMS PHP library is not correctly installed.');
       $this->logger->error($error);
     }
 
@@ -141,7 +140,8 @@ class AwsKmsEncryptionMethod extends EncryptionMethodBase implements EncryptionM
    *   Plaintext data to redact from logs.
    */
   public function logException(\Exception $e, $plaintext) {
-    $message = $e->getMessage();
+    $placeholder = '**REDACTED**';
+    $message = str_replace($plaintext, $placeholder, $e->getMessage());
     $context['sensitive_data'] = $plaintext;
     $this->logger->error($message, $context);
   }
