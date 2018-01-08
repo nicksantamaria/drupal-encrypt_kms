@@ -38,12 +38,88 @@ jobs:
       - run:
           name: Test drupal.org packager excludes
           command: bash ./tests/package-excludes/run-test.sh $(pwd)
+  test:
+    docker:
+      - image: previousnext/php:7.1-dev
+        environment:
+          SIMPLETEST_BASE_URL: http://127.0.0.1
+          SIMPLETEST_DB: mysql://drupal:drupal@127.0.0.1/local
+          BROWSERTEST_OUTPUT_FILE: /data/app/sites/simpletest/browser_output/test-output.html
+          BROWSERTEST_OUTPUT_DIRECTORY: /data/app/sites/simpletest/browser_output
+          MINK_DRIVER_ARGS: '["http:\/\/127.0.0.1:8510", "\/tmp"]'
+      - image: mariadb
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: local
+          MYSQL_USER: drupal
+          MYSQL_PASSWORD: drupal
+      - image: previousnext/gastonjs:1.0.2
+    working_directory: /data
+    steps:
+      - run:
+          name: "Clone Drupal"
+          command: |
+            git clone --depth 1 --branch 8.4.x git://drupalcode.org/project/drupal.git app
+      - restore_cache:
+          keys:
+            - dependency-cache-{{ checksum "app/composer.lock" }}
+      - run:
+          name: "Install dependencies"
+          working_directory: /data/app
+          command: composer install --prefer-dist --no-progress
+      - run:
+          name: "Make directories"
+          working_directory: /data/app
+          command: |
+            mkdir -p \
+              sites/default/files/tmp \
+              sites/default/private \
+              sites/simpletest/browser_output \
+              modules/encrypt_kms \
+              build/phpunit
+            chmod -R 777 sites/default/files sites/simpletest
+            chmod -R 2775 sites/default/private
+            touch sites/simpletest/browser_output/test-output.html
+            cp sites/default/default.settings.php sites/default/settings.php
+            cp sites/default/default.services.yml sites/default/services.yml
+            chmod 777 sites/default/settings.php
+            echo '$settings["trusted_host_patterns"][] = "^127\.0\.0\.1$";' >> sites/default/settings.php
+            chown -R www-data:www-data /data
+      - checkout:
+          path: /data/app/modules/encrypt_kms
+      - run: apt-get install -y jq
+      - run:
+          name: Fetch encrypt_kms dependencies
+          working_directory: /data/app
+          command: |
+            cat composer.json | jq '.'
+            cat modules/encrypt_kms/composer.json | jq '.require | keys[] as $k | "\($k)=\(.[$k])@dev"' | xargs composer require
+      - save_cache:
+          key: dependency-cache-{{ checksum "app/composer.lock" }}
+          paths:
+            - drupal/vendor
+            - ~/.composer
+      - run:
+          name: Start Apache
+          command: |
+            tuner --conf=apache > /etc/apache2/mods-enabled/tuner.conf
+            tuner --conf=php > /usr/local/etc/php/conf.d/tuner.ini
+            apache2ctl start
+      - run: curl -I -XGET http://127.0.0.1
+      - store_test_results:
+          path: ./build/phpunit
+      - store_artifacts:
+          path: ./build/phpunit
+      - store_artifacts:
+          path: ./app/sites/simpletest/browser_output/
+          destination: tr1
 
 workflows:
   version: 2
   main:
     jobs:
       - lint_test
+      - test
   sync:
     jobs:
       - sync_drupalorg:
