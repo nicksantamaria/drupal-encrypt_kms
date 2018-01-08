@@ -74,6 +74,14 @@ jobs:
           working_directory:
             /data/app
       - run: service apache2 restart
+      - run:
+          name: Run unit tests
+          command: |
+            php core/scripts/run-tests.sh --verbose --color \
+              --concurrency 4 \
+              --types "PHPUnit-Unit" \
+              --php `which php` \
+              --url ${SIMPLETEST_BASE_URL}
   test_84x:
     <<: *test
     environment:
