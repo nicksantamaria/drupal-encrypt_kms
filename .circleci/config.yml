@@ -59,10 +59,14 @@ jobs:
               git://drupalcode.org/project/drupal.git .
       - run:
           name: Fetch drupal dependencies
-          command: composer install --prefer-dist --no-progress
+          command: |
+            composer install --prefer-dist --no-progress
+            composer global require drush/drush:^9@dev --no-progress
       - run:
           name: Install drupal
-          command: drush --yes --verbose site-install minimal --db-url="${SIMPLETEST_DB}"
+          command: drush -yv site:install minimal --db-url="${SIMPLETEST_DB}"
+          environment:
+            PATH: "${PATH}:~/.composer/vendor/bin"
       - checkout:
           path: /data/app/modules/encrypt_kms
       - run:
