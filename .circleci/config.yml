@@ -53,7 +53,7 @@ jobs:
     working_directory: /data
     steps:
       - run:
-          name: Download drupal-${DRUPAL_BRANCH}
+          name: Download specified drupal version
           command: |
             git clone --depth 1 --branch ${DRUPAL_BRANCH} \
               git://drupalcode.org/project/drupal.git app
@@ -67,6 +67,7 @@ jobs:
       - run:
           name: Install encrypt_kms dependencies
           command: |
+            apt-get update && apt-get install jq -y
             cat modules/encrypt_kms/composer.json \
               | jq '.require | keys[] as $k | "\($k)=\(.[$k])@dev"' \
               | xargs composer require
