@@ -50,23 +50,19 @@ jobs:
           MYSQL_DATABASE: local
           MYSQL_USER: drupal
           MYSQL_PASSWORD: drupal
-    working_directory: /data
+    working_directory: /data/app
     steps:
       - run:
           name: Download specified drupal version
           command: |
             git clone --depth 1 --branch ${DRUPAL_BRANCH} \
-              git://drupalcode.org/project/drupal.git app
+              git://drupalcode.org/project/drupal.git .
       - run:
           name: Fetch drupal dependencies
           command: composer install --prefer-dist --no-progress
-          working_directory:
-            /data/app
       - run:
           name: Install drupal
           command: drush --yes --verbose site-install minimal --db-url="${SIMPLETEST_DB}"
-          working_directory:
-            /data/app
       - checkout:
           path: /data/app/modules/encrypt_kms
       - run:
@@ -76,8 +72,6 @@ jobs:
             cat modules/encrypt_kms/composer.json \
               | jq '.require | keys[] as $k | "\($k)=\(.[$k])@dev"' \
               | xargs composer require --no-progress
-          working_directory:
-            /data/app
       - run: service apache2 restart
       - run:
           name: Run unit tests
@@ -88,8 +82,6 @@ jobs:
               --php $(which php) \
               --url "${SIMPLETEST_BASE_URL}" \
               --dburl "${SIMPLETEST_DB}"
-          working_directory:
-            /data/app
   test_84x:
     <<: *test
     environment:
