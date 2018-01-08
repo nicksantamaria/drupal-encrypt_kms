@@ -58,14 +58,19 @@ jobs:
             git clone --depth 1 --branch ${DRUPAL_BRANCH} \
               git://drupalcode.org/project/drupal.git app
       - run:
-          name: Install drupal dependencies
+          name: Fetch drupal dependencies
           command: composer install --prefer-dist --no-progress
+          working_directory:
+            /data/app
+      - run:
+          name: Install drupal
+          command: drush --yes --verbose site-install minimal --db-url="${SIMPLETEST_DB}"
           working_directory:
             /data/app
       - checkout:
           path: /data/app/modules/encrypt_kms
       - run:
-          name: Install encrypt_kms dependencies
+          name: Fetch encrypt_kms dependencies
           command: |
             apt-get -qq update  && apt-get -qq install jq -y
             cat modules/encrypt_kms/composer.json \
