@@ -66,7 +66,7 @@ jobs:
           name: Install drupal
           command: drush -yv site:install minimal --db-url="${SIMPLETEST_DB}"
           environment:
-            PATH: "${PATH}:~/.composer/vendor/bin"
+            PATH: "$PATH:/usr/local/bin:/root/.composer/vendor/bin"
       - checkout:
           path: /data/app/modules/encrypt_kms
       - run:
