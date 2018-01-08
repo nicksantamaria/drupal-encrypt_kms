@@ -70,7 +70,7 @@ jobs:
             apt-get -qq update  && apt-get -qq install jq -y
             cat modules/encrypt_kms/composer.json \
               | jq '.require | keys[] as $k | "\($k)=\(.[$k])@dev"' \
-              | xargs composer require
+              | xargs composer require --no-progress
           working_directory:
             /data/app
       - run: service apache2 restart
@@ -82,6 +82,8 @@ jobs:
               --types "PHPUnit-Unit" \
               --php `which php` \
               --url ${SIMPLETEST_BASE_URL}
+          working_directory:
+            /data/app
   test_84x:
     <<: *test
     environment:
