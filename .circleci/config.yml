@@ -80,8 +80,9 @@ jobs:
             php core/scripts/run-tests.sh --verbose --color \
               --concurrency 4 \
               --types "PHPUnit-Unit" \
-              --php `which php` \
-              --url ${SIMPLETEST_BASE_URL}
+              --php $(which php) \
+              --url "${SIMPLETEST_BASE_URL}" \
+              --dburl "${SIMPLETEST_DB}"
           working_directory:
             /data/app
   test_84x:
