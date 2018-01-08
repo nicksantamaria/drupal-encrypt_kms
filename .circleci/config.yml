@@ -15,7 +15,7 @@ jobs:
       - run:
           name: Push to drupal.org git remote
           command: git push --tags drupal "${CIRCLE_BRANCH}"
-  lint_test:
+  lint:
     docker:
       - image: nicksantamaria/circleci-drupal-kms-encrypt:latest
     working_directory: /data
@@ -38,12 +38,56 @@ jobs:
       - run:
           name: Test drupal.org packager excludes
           command: bash ./tests/package-excludes/run-test.sh $(pwd)
-
+  test: &test
+    docker:
+      - image: previousnext/php:7.1-dev
+        environment:
+          SIMPLETEST_BASE_URL: http://127.0.0.1
+          SIMPLETEST_DB: mysql://drupal:drupal@127.0.0.1/local
+      - image: mariadb
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: local
+          MYSQL_USER: drupal
+          MYSQL_PASSWORD: drupal
+    working_directory: /data
+    steps:
+      - run:
+          name: Download drupal-${DRUPAL_BRANCH}
+          command: |
+            git clone --depth 1 --branch ${DRUPAL_BRANCH} \
+              git://drupalcode.org/project/drupal.git app
+      - run:
+          name: Install drupal dependencies
+          command: composer install --prefer-dist --no-progress
+          working_directory:
+            /data/app
+      - checkout:
+          path: /data/app/module/encrypt_kms
+      - run:
+          name: Install encrypt_kms dependencies
+          command: |
+            cat modules/encrypt_kms/composer.json \
+              | jq '.require | keys[] as $k | "\($k)=\(.[$k])@dev"' \
+              | xargs composer require
+          working_directory:
+            /data/app
+      - run: service apache2 restart
+  test_84x:
+    <<: *test
+    environment:
+      - DRUPAL_BRANCH: 8.4.x
 workflows:
   version: 2
   main:
     jobs:
-      - lint_test
+      - lint
+  unit_tests:
+    jobs:
+      - test_84x:
+          filters:
+            branches:
+              only: /21-unit-tests/
   sync:
     jobs:
       - sync_drupalorg:
