@@ -64,9 +64,9 @@ jobs:
             composer global require drush/drush:^9@dev --no-progress
       - run:
           name: Install drupal
-          command: drush -yv site:install minimal --db-url="${SIMPLETEST_DB}"
+          command: $DRUSH -yv site:install minimal --db-url="${SIMPLETEST_DB}"
           environment:
-            PATH: "$PATH:/usr/local/bin:/root/.composer/vendor/bin"
+            DRUSH: "/root/.composer/vendor/bin/drush"
       - checkout:
           path: /data/app/modules/encrypt_kms
       - run:
