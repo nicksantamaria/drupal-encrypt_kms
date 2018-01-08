@@ -63,7 +63,7 @@ jobs:
           working_directory:
             /data/app
       - checkout:
-          path: /data/app/module/encrypt_kms
+          path: /data/app/modules/encrypt_kms
       - run:
           name: Install encrypt_kms dependencies
           command: |
