@@ -48,7 +48,7 @@ class AwsKmsEncryptionMethodTest extends UnitTestCase {
       ->disableOriginalConstructor()
       ->setMethods(['encrypt', 'decrypt'])
       ->getMock();
-    $this->encryptionMethod = new AwsKmsEncryptionMethod();
+    $this->encryptionMethod = new AwsKmsEncryptionMethod([], '', '');
     $this->encryptionMethod->setKmsClient($this->kmsClient);
     $this->encryptionMethod->setLogger($this->logger);
   }
