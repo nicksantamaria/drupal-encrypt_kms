@@ -59,7 +59,7 @@ jobs:
               git://drupalcode.org/project/drupal.git .
       - run:
           name: Fetch drupal dependencies
-          command:  composer install --prefer-dist --no-progress
+          command: composer install --prefer-dist --no-progress
       - checkout:
           path: /data/app/modules/encrypt_kms
       - run:
