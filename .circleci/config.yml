@@ -82,10 +82,11 @@ jobs:
       - run:
           name: Run unit tests
           command: |
-            php core/scripts/run-tests.sh --all --verbose --color \
+            php core/scripts/run-tests.sh --verbose --color \
               --concurrency 4 \
               --url "${SIMPLETEST_BASE_URL}" \
-              --dburl "${SIMPLETEST_DB}"
+              --dburl "${SIMPLETEST_DB}" \
+              "encrypt"
   test_84x:
     <<: *test
     environment:
