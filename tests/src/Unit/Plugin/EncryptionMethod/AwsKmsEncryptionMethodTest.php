@@ -117,8 +117,9 @@ class AwsKmsEncryptionMethodTest extends UnitTestCase {
     $text = 'foo';
     $key = 'bar';
     $returnvalue = $this->encryptionMethod->encrypt($text, $key);
-    // It is not specified in the contract, but other encryption method plugins return empty strings when exceptions
-    // encountered during the encrypt/decrypt process. So we'll test that.
+    // It is not specified in the contract, but other encryption method plugins
+    // return empty strings when exceptions encountered during the
+    // encrypt/decrypt process. So we'll test that.
     $this->assertEquals('', $returnvalue);
   }
 
@@ -140,8 +141,9 @@ class AwsKmsEncryptionMethodTest extends UnitTestCase {
     $ciphertext = 'foo';
     $key = 'bar';
     $returnvalue = $this->encryptionMethod->decrypt($ciphertext, $key);
-    // It is not specified in the contract, but other encryption method plugins return empty strings when exceptions
-    // encountered during the encrypt/decrypt process. So we'll test that.
+    // It is not specified in the contract, but other encryption method plugins
+    // return empty strings when exceptions encountered during the
+    // encrypt/decrypt process. So we'll test that.
     $this->assertEquals('', $returnvalue);
   }
 
