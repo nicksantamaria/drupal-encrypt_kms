@@ -88,7 +88,7 @@ jobs:
               --concurrency 4 \
               --url "${SIMPLETEST_BASE_URL}" \
               --dburl "${SIMPLETEST_DB}" \
-              "encrypt"
+              "encrypt_kms"
   test_84x:
     <<: *test
     environment:
