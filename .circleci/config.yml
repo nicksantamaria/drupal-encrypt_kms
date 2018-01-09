@@ -75,7 +75,7 @@ jobs:
           name: Install drupal
           command: |
             $DRUSH -yv site-install minimal --db-url="${SIMPLETEST_DB}"
-            $DRUSH -yv en encrypt_kms
+            $DRUSH -yv en encrypt_kms simpletest
           environment:
             DRUSH: "/root/.composer/vendor/bin/drush"
       - run: service apache2 restart
