@@ -99,4 +99,24 @@ class AwsKmsEncryptionMethodTest extends UnitTestCase {
     $this->assertEquals('the quick brown fox', $text);
   }
 
+  /**
+   * Tests exceptions are logged in decrypt method.
+   *
+   * @covers ::decrypt
+   */
+  public function testDecryptException() {
+    $this->logger->expects($this->once())
+      ->method('error');
+
+    $e = new \Exception('Test exception');
+    $this->kmsClient->expects($this->once())
+      ->method('decrypt')
+      ->withAnyParameters()
+      ->will($this->throwException($e));
+
+    $ciphertext = 'foo';
+    $key = 'bar';
+    $this->encryptionMethod->decrypt($ciphertext, $key);
+  }
+
 }
