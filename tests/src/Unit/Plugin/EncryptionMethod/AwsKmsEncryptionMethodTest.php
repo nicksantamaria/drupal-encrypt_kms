@@ -100,6 +100,29 @@ class AwsKmsEncryptionMethodTest extends UnitTestCase {
   }
 
   /**
+   * Tests exceptions are logged in encrypt method.
+   *
+   * @covers ::encrypt
+   */
+  public function testEncryptException() {
+    $this->logger->expects($this->once())
+      ->method('error');
+
+    $e = new \Exception('Test exception');
+    $this->kmsClient->expects($this->once())
+      ->method('encrypt')
+      ->withAnyParameters()
+      ->will($this->throwException($e));
+
+    $text = 'foo';
+    $key = 'bar';
+    $returnvalue = $this->encryptionMethod->encrypt($text, $key);
+    // It is not specified in the contract, but other encryption method plugins return empty strings when exceptions
+    // encountered during the encrypt/decrypt process. So we'll test that.
+    $this->assertEquals('', $returnvalue);
+  }
+
+  /**
    * Tests exceptions are logged in decrypt method.
    *
    * @covers ::decrypt
@@ -116,7 +139,10 @@ class AwsKmsEncryptionMethodTest extends UnitTestCase {
 
     $ciphertext = 'foo';
     $key = 'bar';
-    $this->encryptionMethod->decrypt($ciphertext, $key);
+    $returnvalue = $this->encryptionMethod->decrypt($ciphertext, $key);
+    // It is not specified in the contract, but other encryption method plugins return empty strings when exceptions
+    // encountered during the encrypt/decrypt process. So we'll test that.
+    $this->assertEquals('', $returnvalue);
   }
 
 }
