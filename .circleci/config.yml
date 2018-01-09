@@ -61,12 +61,7 @@ jobs:
           name: Fetch drupal dependencies
           command: |
             composer install --prefer-dist --no-progress
-            composer global require drush/drush:^9@dev --no-progress
-      - run:
-          name: Install drupal
-          command: $DRUSH -yv site:install minimal --db-url="${SIMPLETEST_DB}"
-          environment:
-            DRUSH: "/root/.composer/vendor/bin/drush"
+            composer global require drush/drush --no-progress
       - checkout:
           path: /data/app/modules/encrypt_kms
       - run:
@@ -76,6 +71,13 @@ jobs:
             cat modules/encrypt_kms/composer.json \
               | jq '.require | keys[] as $k | "\($k)=\(.[$k])@dev"' \
               | xargs composer require --no-progress
+      - run:
+          name: Install drupal
+          command: |
+            $DRUSH -yv site-install minimal --db-url="${SIMPLETEST_DB}"
+            $DRUSH -yv en encrypt_kms
+          environment:
+            DRUSH: "/root/.composer/vendor/bin/drush"
       - run: service apache2 restart
       - run:
           name: Run unit tests
