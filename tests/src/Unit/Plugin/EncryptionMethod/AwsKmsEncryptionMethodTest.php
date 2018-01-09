@@ -44,7 +44,7 @@ class AwsKmsEncryptionMethodTest extends UnitTestCase {
     parent::setUp();
 
     $this->logger = $this->getMock(LoggerInterface::class);
-    $this->$kmsClient = $this->getMockBuilder(KmsClient::class)
+    $this->kmsClient = $this->getMockBuilder(KmsClient::class)
       ->disableOriginalConstructor()
       ->setMethods(['encrypt', 'decrypt'])
       ->getMock();
