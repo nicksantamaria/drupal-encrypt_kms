@@ -82,10 +82,8 @@ jobs:
       - run:
           name: Run unit tests
           command: |
-            php core/scripts/run-tests.sh --verbose --color \
+            php core/scripts/run-tests.sh --all --verbose --color \
               --concurrency 4 \
-              --types "PHPUnit-Unit" \
-              --php $(which php) \
               --url "${SIMPLETEST_BASE_URL}" \
               --dburl "${SIMPLETEST_DB}"
   test_84x:
