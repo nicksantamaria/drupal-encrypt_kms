@@ -86,10 +86,18 @@ jobs:
               --url "${SIMPLETEST_BASE_URL}" \
               --dburl "${SIMPLETEST_DB}" \
               "encrypt_kms"
+  test_83x:
+    <<: *test
+    environment:
+      - DRUPAL_BRANCH: 8.3.x
   test_84x:
     <<: *test
     environment:
       - DRUPAL_BRANCH: 8.4.x
+  test_85x:
+    <<: *test
+    environment:
+      - DRUPAL_BRANCH: 8.5.x
 workflows:
   version: 2
   main:
@@ -97,7 +105,15 @@ workflows:
       - lint
   unit_tests:
     jobs:
+      - test_83x:
+          filters:
+            branches:
+              only: /21-unit-tests/
       - test_84x:
+          filters:
+            branches:
+              only: /21-unit-tests/
+      - test_85x:
           filters:
             branches:
               only: /21-unit-tests/
