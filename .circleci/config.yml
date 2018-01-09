@@ -40,7 +40,7 @@ jobs:
           command: bash ./tests/package-excludes/run-test.sh $(pwd)
   test: &test
     docker:
-      - image: previousnext/php:7.1-dev
+      - image: nicksantamaria/circleci-drupal-kms-encrypt:latest
         environment:
           SIMPLETEST_BASE_URL: http://127.0.0.1
           SIMPLETEST_DB: mysql://drupal:drupal@127.0.0.1/local
@@ -59,15 +59,12 @@ jobs:
               git://drupalcode.org/project/drupal.git .
       - run:
           name: Fetch drupal dependencies
-          command: |
-            composer install --prefer-dist --no-progress
-            composer global require drush/drush --no-progress
+          command:  composer install --prefer-dist --no-progress
       - checkout:
           path: /data/app/modules/encrypt_kms
       - run:
           name: Fetch encrypt_kms dependencies
           command: |
-            apt-get -qq update  && apt-get -qq install jq -y
             cat modules/encrypt_kms/composer.json \
               | jq '.require | keys[] as $k | "\($k)=\(.[$k])@dev"' \
               | xargs composer require --no-progress
