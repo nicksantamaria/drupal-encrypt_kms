@@ -96,7 +96,7 @@ class AwsKmsEncryptionMethodTest extends UnitTestCase {
 
     $text = $this->encryptionMethod->decrypt($ciphertext, $key);
 
-    $this->assertEquals($text, $ciphertext);
+    $this->assertEquals('the quick brown fox', $text);
   }
 
 }
